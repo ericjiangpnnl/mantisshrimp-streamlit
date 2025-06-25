@@ -1,0 +1,28 @@
+name: mantisshrimp
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - python=3.10
+  - pip
+  - numpy
+  - scipy
+  - pandas
+  - flask
+  - requests
+  - typing_extensions
+  - matplotlib
+  - pip:
+      - torch==2.2.2 # Latest version known to work well on ARM + CPU
+      - torchvision
+      - astropy
+      - dustmaps
+      - tqdm
+      - opencv-python
+      - flask-limiter
+      - sep-pjw
+      - einops
+      - timm
+      - urllib3
+      - calpit
+      - spline-basis

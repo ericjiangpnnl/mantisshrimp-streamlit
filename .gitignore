@@ -1,0 +1,53 @@
+# Python cache
+__pycache__/
+*.py[cod]
+
+# Model files
+*.pt
+*.pth
+*.ckpt
+*.h5
+*.pkl
+*.npy
+*.npz
+*.tar.gz
+*.zip
+*.fits
+
+# Dustmap and model folders
+mantis_shrimp/MODELS_final/
+mantis_shrimp/dustmaps/
+build/
+*.egg-info/
+
+# SLURM job output and shell scripts
+slurm_scripts/**/out/
+slurm_scripts/**/.ipynb_checkpoints/
+slurm_scripts/**/*.e
+slurm_scripts/**/*.o
+
+# Notebooks checkpoints
+NOTEBOOKS/__pycache__/
+NOTEBOOKS/*.pyc
+NOTEBOOKS/*.npy
+NOTEBOOKS/*.pt
+NOTEBOOKS/*.ipynb_checkpoints/
+
+# Data folders
+data/
+run/
+tensorboardlog*/
+rayresults/
+torch_rdzv/
+
+# VSCode or JetBrains IDE junk
+.vscode/
+.idea/
+
+# Conda environments or lock files
+*.conda
+*.lock
+
+# Misc
+*.log
+.env
