@@ -176,6 +176,9 @@ def main():
         st.title("Mantis Shrimp Redshift Webapp")
         st.header("Neural Network Prediction")
         
+        # Advanced settings
+        show_advanced = st.checkbox("Show Advanced Settings")
+
         # Create form
         with st.form(key="input_form"):
             col1, col2, col3 = st.columns(3)
@@ -188,9 +191,6 @@ def main():
             
             with col3:
                 dec = st.text_input("DEC (decimal degrees)", "")
-            
-            # Advanced settings
-            show_advanced = st.checkbox("Show Advanced Settings")
             
             if show_advanced:
                 st.subheader("Advanced Settings")
