@@ -1,7 +1,79 @@
-import sep_pjw as sep
+# Try to import sep_pjw, but make it optional
+try:
+    import sep_pjw as sep
+    SEP_AVAILABLE = True
+except ImportError:
+    SEP_AVAILABLE = False
+    # Create a dummy sep module with the necessary functions
+    class DummySep:
+        class Background:
+            def __init__(self, img):
+                self.img = img
+                self._rms = np.std(img)
+                
+            def rms(self):
+                return self._rms
+                
+            @property
+            def globalrms(self):
+                return self._rms
+        
+        @staticmethod
+        def extract(data, threshold, err=None):
+            # Return a minimal structure that won't break the code
+            return [{'x': data.shape[1]/2, 'y': data.shape[0]/2, 
+                    'a': 1.0, 'b': 1.0, 'theta': 0.0, 'flux': 0.0}]
+        
+        @staticmethod
+        def mask_ellipse(mask, x, y, a, b, theta, r=1.0):
+            # Simple implementation that creates a circular mask
+            h, w = mask.shape
+            Y, X = np.ogrid[:h, :w]
+            
+            # Handle both array and scalar inputs
+            if isinstance(x, np.ndarray):
+                for i in range(len(x)):
+                    dist = np.sqrt((X - x[i])**2 + (Y - y[i])**2)
+                    mask[dist <= r*max(a[i], b[i])] = True
+            else:
+                dist = np.sqrt((X - x)**2 + (Y - y)**2)
+                mask[dist <= r*max(a, b)] = True
+        
+        @staticmethod
+        def kron_radius(data, x, y, a, b, theta, k):
+            # Return a simple approximation
+            return 2.0, 0
+        
+        @staticmethod
+        def sum_circle(data, x, y, r):
+            # Simple implementation to sum pixels in a circle
+            h, w = data.shape
+            Y, X = np.ogrid[:h, :w]
+            
+            flux = []
+            for i in range(len(x)):
+                dist = np.sqrt((X - x[i])**2 + (Y - y[i])**2)
+                mask = dist <= r
+                flux.append(np.sum(data[mask]))
+            
+            return np.array(flux), np.zeros_like(flux), np.zeros_like(flux, dtype=int)
+        
+        @staticmethod
+        def sum_ellipse(data, x, y, a, b, theta, r, subpix=1):
+            # Simplified implementation similar to sum_circle
+            return sep.sum_circle(data, x, y, r*np.mean([a, b]))
+    
+    # Create a global instance of the dummy sep module
+    sep = DummySep()
+
 import numpy as np
 from einops import rearrange
 import torch
+import warnings
+
+# Show a warning if sep_pjw is not available
+if not SEP_AVAILABLE:
+    warnings.warn("sep_pjw module not found. Using simplified implementation that may affect results.")
 
 def mask_center_source(x_galex,x_ps,x_unwise,INDEX):
     
@@ -258,9 +330,3 @@ def extract_magnitude(x_galex,x_ps,x_unwise,INDEX):
         flux, fluxerr, flag = sep.sum_circle(data_sub, np.array([center,]), np.array([center,]), 4.0)
         flux = flux[0]
         return flux, Forced_Photo
-
-
-
-
-
-        

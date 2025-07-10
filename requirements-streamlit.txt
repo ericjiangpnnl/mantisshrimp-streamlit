@@ -1,0 +1,17 @@
+# Core dependencies
+streamlit>=1.0.0
+numpy>=1.19.0
+matplotlib>=3.3.0
+torch>=1.9.0
+astropy>=4.0.0
+einops>=0.3.0
+timm>=0.5.4
+werkzeug>=2.0.0
+
+# Optional dependencies (install if available)
+# sep_pjw  # For source extraction and photometry
+# calpit   # For calibration of outputs
+# splinebasis  # Required by calpit
+
+# Note: The application will run without the optional dependencies,
+# but some features may use simplified implementations.

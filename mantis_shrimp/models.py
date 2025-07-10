@@ -10,8 +10,22 @@ import torch
 import torch.nn as nn
 from torch import Tensor
 
-from calpit import CalPit
-from calpit.nn.umnn import MonotonicNN 
+# Try to import CalPit, but make it optional
+try:
+    from calpit import CalPit
+    from calpit.nn.umnn import MonotonicNN
+    import splinebasis  # Check if this dependency is available
+    CALPIT_AVAILABLE = True
+except ImportError:
+    CALPIT_AVAILABLE = False
+    # Create dummy classes for type checking
+    class CalPit:
+        def __init__(self, model=None):
+            pass
+        
+    class MonotonicNN:
+        def __init__(self, *args, **kwargs):
+            pass
 
 
 def _ovewrite_named_param(kwargs, param: str, new_value) -> None:
@@ -913,6 +927,20 @@ def trained_early(device):
     return model, CLASS_BINS_npy
 
 def trained_calPIT_model(device):
+    """
+    Helper function to instantiate the CalPIT model and load weights
+    
+    INPUTS:
+        device: str or pytorch.device object; e.g., 'cpu','cuda' 
+
+    OUTPUTS:
+        calpit_model: a CalPIT model with pre-trained weights initialized
+        y_grid: a numpy.ndarray which linearly spaces out the redshift space for the CalPIT model
+    """
+    if not CALPIT_AVAILABLE:
+        print("WARNING: CalPIT is not available. Returning None.")
+        return None, np.linspace(0, 1.6, 400)
+    
     monotonicnn_model = MonotonicNN(84, [1024,1024,1024,1024], sigmoid=True)
     monotonicnn_model.to(device)
     calpit_model = CalPit(model=monotonicnn_model)
