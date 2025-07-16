@@ -10,4 +10,4 @@ echo "Starting Streamlit application..."
 streamlit run streamlit_app.py
 
 # Note: If the application doesn't start, make sure you have installed all dependencies
-# You can install them with: pip install -r requirements-streamlit.txt
+# You can install them with: pip install -r requirements.txt

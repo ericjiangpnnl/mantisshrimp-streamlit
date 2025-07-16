@@ -8,7 +8,7 @@ dependencies:
   - numpy
   - scipy
   - pandas
-  - flask
+  - streamlit
   - requests
   - typing_extensions
   - matplotlib
@@ -19,7 +19,6 @@ dependencies:
       - dustmaps
       - tqdm
       - opencv-python
-      - flask-limiter
       - sep-pjw
       - einops
       - timm
