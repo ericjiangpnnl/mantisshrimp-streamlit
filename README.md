@@ -1,246 +1,91 @@
-[![arXiv](https://img.shields.io/badge/arXiv-2501.09112-B31B1B.svg)](https://arxiv.org/abs/2501.09112)
+# MantisShrimp Streamlit
 
-# Mantis Shrimp
+A Streamlit application for photometric redshift estimation using the MantisShrimp computer vision model.
 
-<p align="center">
-    <img src="images/MSlogo.png" alt="Mantis Shrimp Logo" width="300">
-</p>
+## Project Structure
 
-Mantis Shrimp is a computer vision model for photometric redshift estimation in the Northern sky (DEC > -30). This repository houses the model weights, a pip installable package to enable integration with existing projects, a Streamlit web application for interactive use, jupyter notebooks demonstrating the training of Mantis Shrimp for reproducibility, tutorials in deep learning for astronomy (coming soon), and associated artifacts.
+The project follows Streamlit best practices with a modular structure:
 
-## Streamlit WebApp Demonstration
+```
+MantisShrimp-Streamlit/
+├── app/                      # Main application directory
+│   ├── __init__.py           # Make it a proper package
+│   ├── main.py               # Main Streamlit entry point
+│   ├── config.py             # App configuration
+│   ├── pages/                # Streamlit pages directory
+│   │   ├── __init__.py
+│   │   └── about.py          # About page
+│   └── utils/                # Utility functions
+│       ├── __init__.py
+│       ├── download.py       # Download utilities
+│       └── visualization.py  # Visualization utilities
+├── data/                     # Data directory
+│   └── dustmaps/             # Dust maps data
+├── images/                   # Images directory
+├── mantis_shrimp/            # Core package
+├── run.sh                    # Run script
+└── requirements.txt          # Dependencies
+```
 
-<p align="center">
-    <img src="images/MantisShrimpDemo.gif" alt="Mantis Shrimp Demo" width="700">
-</p>
-See below for instructions on running the Streamlit webapp locally or using Docker.
+## Requirements
 
-## Windows Limitation
+- Python 3.7+
+- Streamlit 1.0+
+- All dependencies from the original MantisShrimp project
 
-Mantis Shrimp is (implicitly) dependent upon the [healpy](https://github.com/healpy/healpy) library. Healpy does not currently [support Windows](https://github.com/healpy/healpy/issues/25). Running the installation on a Windows machine will therefore fail.
+## Installation
 
-Windows users can still use Docker to build the WebApp or run our environment within an interactive container.
-
-## Running the Streamlit WebApp
-
-### Option 1: Using the run script
+The application uses the same environment as the original MantisShrimp project. Make sure you have set up the environment according to the main README.md file.
 
 ```bash
-# Clone the repository
+# If you haven't already, install the MantisShrimp package
 git clone https://github.com/pnnl/MantisShrimp.git
 cd MantisShrimp
 git lfs pull
-
-# Set up the environment
 conda install -n base -c conda-forge mamba
-mamba env create --name mantisshrimp --file production-streamlit.yml
+mamba env create --name mantisshrimp --file production.yml
 conda activate mantisshrimp
 pip install .
-
-# Make the script executable
-chmod +x run_streamlit_app.sh
-
-# Run the script
-./run_streamlit_app.sh
 ```
 
-### Option 2: Manual execution
+## Running the Application
+
+```bash
+# Make the script executable (if not already)
+chmod +x run.sh
+
+# Run the script
+./run.sh
+```
+
+Or manually:
 
 ```bash
 # Activate the conda environment
 conda activate mantisshrimp
 
 # Run the Streamlit app
-streamlit run streamlit_app.py
+streamlit run app/main.py
 ```
 
 The application will be available at http://localhost:8501 by default.
 
-### Option 3: Using Docker
+## Features
 
-```bash
-git lfs install
-git lfs pull
-docker build -f Dockerfile-streamlit -t mantisshrimp-streamlit .
-docker run -p 8501:8501 mantisshrimp-streamlit
-```
+### Home Page
 
-This will launch a Streamlit webapp server accessible from any web browser by navigating to localhost:8501. The webapp has a simple interface that allows you to enter any sky-coordinates one-at-a-time and returns a visualization of the PDF of redshift as well as the cutouts from PanSTARRs, WISE, and GALEX at those coordinates, with an option to download the cutout and PDF.
+- Input form for entering coordinates
+- Advanced settings for customizing the analysis
+- Visualization of results
+- Download options for results
 
-## Installation Options
+### About Page
 
-This repository serves multiple purposes: our intent is to support users who want to run the mantis shrimp model in inference mode as well as support users who want to re-train the model. We therefore discuss multiple installation options:
+- Information about the project
+- Usage instructions
+- Technical details
+- Limitations and considerations
 
-#### Users who want to run the model:
+## License
 
-To install Mantis Shrimp with dependencies for inference mode only:
-
-```bash
-# If you have just installed git-lfs, you may need to run `git lfs install` before `git lfs pull`
-git clone https://github.com/pnnl/MantisShrimp.git
-cd MantisShrimp
-git lfs pull
-conda install -n base -c conda-forge mamba
-mamba env create --name $ENV_NAME --file production-streamlit.yml
-conda activate $ENV_NAME
-pip install .
-streamlit run streamlit_app.py
-```
-
-#### Users who want to train the model:
-
-To install our **exact** training environemnt for reproducibility and training:
-
-```bash
-git clone https://github.com/pnnl/MantisShrimp.git
-cd MantisShrimp/run
-conda install -n base -c conda-forge mamba
-mamba env create --name $ENV_NAME --file environment.yml
-conda activate $ENV_NAME
-cd ..
-git lfs pull
-pip install .
-```
-
-**One then needs to install the [FFCV](https://github.com/libffcv/ffcv) package seperately to run our training scripts.**
-**One then also needs to download the dataset via Glubus and [PNNL's DataHub](https://data.pnnl.gov/group/nodes/dataset/33966).**
-
-#### Package Only
-
-To install the Mantis Shrimp package (without dependencies)
-
-```bash
-git clone https://github.com/pnnl/MantisShrimp.git
-cd MantisShrimp
-git lfs pull
-pip install -e .
-```
-
-## Tutorial
-
-Mantis Shrimp is a computer vision model, so using it on new data requires querying external servers for image cutouts. **WARNING: querying external services requires an internet connection and can be a point of failure.**
-
-We include a minimal pipeline command that allows the user to provide coordinates and will return the photometric redshift.
-
-```python
-from mantis_shrimp import pipeline
-from mantis_shrimp import models
-import matplotlib.pyplot as plt
-import os
-
-DEVICE = 'cpu' #pytorch device string; could set to 'cuda'
-RA = 197.6144 #decimal degress
-DEC = 18.4381 #decimal degrees
-USER_INDEX = 0 #arbitrary index used in metadata
-SAVEPATH = '/tmp/mantisshrimp/' #create a storage solution for downloaded cutout fits
-
-#attempt to create the path if it doesn't exist already
-if not(os.path.exists(SAVEPATH)):
-    os.path.makedirs(SAVEPATH)
-
-model, class_bins = models.trained_early(DEVICE)
-
-data = pipeline.get_data(USER_INDEX, RA, DEC, SAVEPATH)
-
-photo_z, PDF, __ = pipeline.evaluate(USER_INDEX,
-                                    RA,
-                                    DEC,
-                                    model=model,
-                                    data=data,
-                                    SAVEPATH=SAVEPATH,
-                                    device=DEVICE)
-
-# This is the expectation value of the PDF which serves as our point estimate
-print(photo_z)
-
-# Or you can use the PDF to extract your own photo_z:
-# For now let's visualize the PDF.
-plt.title('PDF of PhotoZ for RA={:.3f} DEC={:.3f}'.format(RA,DEC))
-plt.plot(class_bins,PDF)
-plt.show()
-```
-
-## Dependencies
-
-The application requires several Python packages to run. The core dependencies are listed in the `requirements-streamlit.txt` file. You can install them with:
-
-```bash
-pip install -r requirements-streamlit.txt
-```
-
-Note that some optional dependencies (sep_pjw, calpit, splinebasis) are not required for the application to run, but may enhance certain features if available. The application includes fallback implementations for these dependencies.
-
-## Limitations
-
-This repository should be used with special context that the computer vision model was trained over a tailored dataset of spectroscopically confirmed galaxies with cutouts centered on those galaxies. Our pipeline will assign a photometric redshift to arbitrary coordinates of the sky. **However, that does not mean our model should be trusted everywhere--** galaxies that are not observed in the PanSTARRS/WISE footprint are simply not going to have accurate photometric redshifts with this tool. Additional care must be taken to ensure the target galaxy is centered on the image, which is why we advise using our tool in tandem with sky browsers, for example, available from [PanSTARRs](https://ps1images.stsci.edu/cgi-bin/ps1cutouts).
-
-Additionally, its not likely our model extends well to galaxies outside the support of our spectroscopic training datasets, which are biased to large red elliptical galaxies. This is a problem shared for essentially all machine learning photometric redshift models unless we limit ourselves to flux-limited samples like the SDSS MGS, or soon the DESI BGS. Future work should endeavor to either mitigate this by utilizing simulated images to augment the training set or use anomaly detection to flag when cutouts are unlike anything in the training distribution. Both would be at the cutting edge of AI research.
-
-## Data availability
-
-You can download the Mantis Shrimp Dataset from [PNNL's Datahub](https://data.pnnl.gov/group/nodes/dataset/33966). DataHub is a free to use data repository for PNNL; its backend is Globus.
-
-## External Dependencies & Considerations
-
-In addition to the software dependencies, this software relies upon the availability of data from NASA STSci and NSF AstroDataLab servers.
-
-We have packaged this webapp with dustmaps provided by Yi-Kuan Chiang, author of the corrected SFD map, and the Planck map provided by the European Space Agency. The exact sources of this data are:
-
-```bash
-#STSci and ADL:
-https://ps1images.stsci.edu/cgi-bin/fitscut.cgi
-www.legacysurvey.org/viewer/fits-cutout?
-#Dustmaps
-https://zenodo.org/record/8207175/files/csfd_ebv.fits
-https://zenodo.org/record/8207175/files/mask.fits
-http://pla.esac.esa.int/pla/aio/product-action?MAP.MAP_ID=HFI_CompMap_ThermalDustModel_2048_R1.20.fits
-```
-
-## Citation
-
-If you find our paper helpful or use the Mantis Shrimp model or webapp in your research, consider citing our paper:
-
-```bash
-@ARTICLE{mantisshrimpengel,
-      title={Mantis Shrimp: Exploring Photometric Band Utilization in Computer Vision Networks for Photometric Redshift Estimation},
-      author={Andrew Engel and Nell Byler and Adam Tsou and Gautham Narayan and Emmanuel Bonilla and Ian Smith},
-      year={2025},
-      eprint={2501.09112},
-      archivePrefix={arXiv},
-      primaryClass={astro-ph.IM},
-      url={https://arxiv.org/abs/2501.09112},
-}
-```
-
-## Authors
-
-Andrew Engel (OSU and PNNL), Nell Byler (PNNL), Adam Tsou (JHU), Gautham Narayan (UIUC), Manny Bonilla (PNNL), and Ian Smith (PNNL) all contributed to this work.
-
-## Funding Acknowledgement
-
-A. Engel, N. Byler, A. Tsou, E. Bonilla, and Ian Smith were partially supported by an interagency agreement (IAA) between NASA and the DOE in liu of grant awarded through the NASA ROSES D.2 Astrophysics Data Analysis grant # 80NSSC23K0474, ``Multi-Survey Photometric Redshifts with Probabilistic Output for Galaxies with 0.0 < Z < 0.6.''
-
-## Disclaimer
-
-This material was prepared as an account of work sponsored by an agency of the
-United States Government. Neither the United States Government nor the United
-States Department of Energy, nor Battelle, nor any of their employees, nor any
-jurisdiction or organization that has cooperated in the development of these
-materials, makes any warranty, express or implied, or assumes any legal
-liability or responsibility for the accuracy, completeness, or usefulness or
-any information, apparatus, product, software, or process disclosed, or
-represents that its use would not infringe privately owned rights.
-
-Reference herein to any specific commercial product, process, or service by
-trade name, trademark, manufacturer, or otherwise does not necessarily
-constitute or imply its endorsement, recommendation, or favoring by the United
-States Government or any agency thereof, or Battelle Memorial Institute. The
-views and opinions of authors expressed herein do not necessarily state or
-reflect those of the United States Government or any agency thereof.
-
-                 PACIFIC NORTHWEST NATIONAL LABORATORY
-                              operated by
-                                BATTELLE
-                                for the
-                   UNITED STATES DEPARTMENT OF ENERGY
-                    under Contract DE-AC05-76RL01830
+This application is subject to the same license as the original MantisShrimp project. See the LICENSE.txt file for details.
