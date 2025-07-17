@@ -2,6 +2,7 @@
 Main entry point for the MantisShrimp Streamlit application.
 """
 import os
+import sys
 import io
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 import uuid
