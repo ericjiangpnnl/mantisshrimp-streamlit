@@ -7,11 +7,20 @@ astropy>=4.0.0
 einops>=0.3.0
 timm>=0.5.4
 werkzeug>=2.0.0
+dustmaps>=1.0.4
+torchvision>=0.10.0
+scipy>=1.6.0
+opencv-python>=4.5.0
+tqdm>=4.60.0
+pandas>=1.3.0
+requests>=2.25.0
 
-# Optional dependencies (install if available)
+
+# Optional dependencies (uncomment to install)
 # sep_pjw  # For source extraction and photometry
 # calpit   # For calibration of outputs
 # splinebasis  # Required by calpit
+# ffcv  # For fast data loading in training scripts
 
 # Note: The application will run without the optional dependencies,
 # but some features may use simplified implementations.
