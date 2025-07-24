@@ -7,7 +7,7 @@ conda activate mantisshrimp
 
 # Run the Streamlit application
 echo "Starting Streamlit application..."
-streamlit run app/main.py
+streamlit run app/1_Home.py
 
 # Note: If the application doesn't start, make sure you have installed all dependencies
 # You can install them with: pip install -r requirements.txt
