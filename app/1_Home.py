@@ -36,7 +36,6 @@ try:
     from calpit.nn.umnn import MonotonicNN
     from calpit.utils import normalize
     # Try to import a module that might be missing
-    import splinebasis
     CALPIT_AVAILABLE = True
 except ImportError:
     # If any import fails, mark CalPit as unavailable

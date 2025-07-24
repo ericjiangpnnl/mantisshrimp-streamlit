@@ -19,7 +19,6 @@ requests>=2.25.0
 # Optional dependencies (uncomment to install)
 # sep_pjw  # For source extraction and photometry
 # calpit   # For calibration of outputs
-# splinebasis  # Required by calpit
 # ffcv  # For fast data loading in training scripts
 
 # Note: The application will run without the optional dependencies,

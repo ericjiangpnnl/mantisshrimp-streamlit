@@ -14,7 +14,6 @@ from torch import Tensor
 try:
     from calpit import CalPit
     from calpit.nn.umnn import MonotonicNN
-    import splinebasis  # Check if this dependency is available
     CALPIT_AVAILABLE = True
 except ImportError:
     CALPIT_AVAILABLE = False
