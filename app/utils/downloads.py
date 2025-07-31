@@ -125,6 +125,68 @@ def ensure_model_files():
     return downloaded_files
 
 
+def ensure_csfd_dustmap():
+    """
+    Download CSFD dustmap files if not present locally.
+    
+    This function checks if the CSFD dustmap FITS files exist locally,
+    and if not, downloads them from Google Drive using gdown.
+    
+    Returns:
+        dict: Dictionary with paths to CSFD dustmap files
+    """
+    # Define the paths where the dustmaps should be stored
+    csfd_files = {
+        'csfd_ebv': "mantis_shrimp/dustmaps/csfd/csfd_ebv.fits",
+        'mask': "mantis_shrimp/dustmaps/csfd/mask.fits"
+    }
+    
+    csfd_urls = {
+        'csfd_ebv': "https://drive.google.com/uc?id=1Vn3Enrop9AHXc8OwDn_dqSz7NNJzkvzn",
+        'mask': "https://drive.google.com/uc?id=187RDaQIg_C8_cxaW3UG9BYchmdAA9gG6"
+    }
+    
+    downloaded_files = {}
+    
+    for file_key, file_path in csfd_files.items():
+        # Check if file already exists
+        if os.path.isfile(file_path):
+            downloaded_files[file_key] = file_path
+            continue
+        
+        # Create directory if it doesn't exist
+        os.makedirs(os.path.dirname(file_path), exist_ok=True)
+        
+        # Download with user feedback
+        with st.spinner(f"Downloading CSFD {file_key} file..."):
+            try:
+                gdown.download(csfd_urls[file_key], file_path, quiet=False)
+                
+                # Verify the download was successful
+                if os.path.isfile(file_path):
+                    file_size = os.path.getsize(file_path)
+                    size_mb = file_size / (1024 * 1024)
+                    
+                    if file_size > 1024:  # More than 1KB suggests successful download
+                        st.success(f"✅ Successfully downloaded CSFD {file_key} ({size_mb:.1f} MB)")
+                        downloaded_files[file_key] = file_path
+                    else:
+                        raise Exception(f"Downloaded file is too small ({file_size} bytes)")
+                else:
+                    raise Exception("File was not created after download")
+                    
+            except Exception as e:
+                # Clean up partial download
+                if os.path.exists(file_path):
+                    os.remove(file_path)
+                
+                st.error(f"❌ Failed to download CSFD {file_key}: {str(e)}")
+                st.error("Please check your internet connection and try again.")
+                st.stop()
+    
+    return downloaded_files
+
+
 def ensure_all_required_files():
     """
     Ensure all required large files are downloaded and available.
@@ -134,6 +196,9 @@ def ensure_all_required_files():
     """
     # Download Planck dustmap
     ensure_planck_dustmap()
+    
+    # Download CSFD dustmap
+    ensure_csfd_dustmap()
     
     # Download model files
     ensure_model_files()
