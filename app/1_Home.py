@@ -17,6 +17,10 @@ from werkzeug.utils import secure_filename
 from app.config import SAVEPATH, DEVICE, DUSTMAPS_DIR
 from app.utils.download import get_download_link_for_json, get_download_link_for_fits
 from app.utils.visualization import is_number_with_decimal
+from app.utils.downloads import ensure_all_required_files
+
+# Ensure all required files are downloaded before proceeding
+ensure_all_required_files()
 
 # Configure dustmaps
 from dustmaps.config import config
