@@ -196,7 +196,11 @@ if submit_button and ra and dec:
             
             normalized_feature_vector = pipeline.get_feature_vector(data)
             
-            ckpt = torch.load('./mantis_shrimp/MODELS_final/calpit_checkpoint.pt', map_location=torch.device(DEVICE), weights_only=True)
+            # Use relative path approach consistent with other model loading
+            import os
+            current_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))  # Go up one level from app/
+            calpit_path = os.path.join(current_dir, 'mantis_shrimp', 'MODELS_final', 'calpit_checkpoint.pt')
+            ckpt = torch.load(calpit_path, map_location=torch.device(DEVICE), weights_only=True)
             calpit_model.model.load_state_dict(ckpt)
             calpit_model.model.train(False)
             

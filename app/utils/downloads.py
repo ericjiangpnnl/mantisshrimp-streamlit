@@ -60,6 +60,71 @@ def ensure_planck_dustmap():
     return dustmap_path
 
 
+def ensure_model_files():
+    """
+    Download all required model files if not present locally.
+    
+    Downloads the neural network model weights and calibration files
+    needed for redshift prediction.
+    
+    Returns:
+        dict: Dictionary with paths to all model files
+    """
+    model_files = {
+        'best_early': 'mantis_shrimp/MODELS_final/best_early.pt',
+        'calpit_checkpoint': 'mantis_shrimp/MODELS_final/calpit_checkpoint.pt',
+        'calpit_mean': 'mantis_shrimp/MODELS_final/calpit_stats/calpit_mean.npy',
+        'calpit_std': 'mantis_shrimp/MODELS_final/calpit_stats/calpit_std.npy'
+    }
+    
+    model_urls = {
+        'best_early': 'https://drive.google.com/uc?id=1ZS3gxEVTKYuUP6RHJ6kLCn1rRYcs7EqK',
+        'calpit_checkpoint': 'https://drive.google.com/uc?id=12Lnp7EUbwL6u72xr-ZLjxh3rx1sXlP0t',
+        'calpit_mean': 'https://drive.google.com/uc?id=1XBfMS6VtEaXhku5mDjh7t3XznpRHFZ0W',
+        'calpit_std': 'https://drive.google.com/uc?id=1MGDFnSEJD9TcI7QMxwUpqkW2ylI2XRiz'
+    }
+    
+    downloaded_files = {}
+    
+    for file_key, file_path in model_files.items():
+        # Check if file already exists
+        if os.path.isfile(file_path):
+            downloaded_files[file_key] = file_path
+            continue
+        
+        # Create directory if it doesn't exist
+        os.makedirs(os.path.dirname(file_path), exist_ok=True)
+        
+        # Download with user feedback
+        with st.spinner(f"Downloading {file_key} model file..."):
+            try:
+                gdown.download(model_urls[file_key], file_path, quiet=False)
+                
+                # Verify the download was successful
+                if os.path.isfile(file_path):
+                    file_size = os.path.getsize(file_path)
+                    size_mb = file_size / (1024 * 1024)
+                    
+                    if file_size > 100:  # More than 100 bytes suggests successful download
+                        st.success(f"✅ Successfully downloaded {file_key} ({size_mb:.1f} MB)")
+                        downloaded_files[file_key] = file_path
+                    else:
+                        raise Exception(f"Downloaded file is too small ({file_size} bytes)")
+                else:
+                    raise Exception("File was not created after download")
+                    
+            except Exception as e:
+                # Clean up partial download
+                if os.path.exists(file_path):
+                    os.remove(file_path)
+                
+                st.error(f"❌ Failed to download {file_key}: {str(e)}")
+                st.error("Please check your internet connection and try again.")
+                st.stop()
+    
+    return downloaded_files
+
+
 def ensure_all_required_files():
     """
     Ensure all required large files are downloaded and available.
@@ -70,5 +135,5 @@ def ensure_all_required_files():
     # Download Planck dustmap
     ensure_planck_dustmap()
     
-    # Add other file downloads here as needed
-    # e.g., model files, other dustmaps, etc.
+    # Download model files
+    ensure_model_files()
