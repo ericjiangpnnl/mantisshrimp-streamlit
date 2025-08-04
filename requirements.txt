@@ -18,8 +18,6 @@ gdown>=4.0.0
 sep>=1.4.0
 
 # Optional dependencies (uncomment to install)
-sep_pjw  # For source extraction and photometry
-# calpit   # For calibration of outputs
 # ffcv  # For fast data loading in training scripts
 
 # Note: The application will run without the optional dependencies,
