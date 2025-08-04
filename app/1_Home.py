@@ -34,12 +34,11 @@ from mantis_shrimp import augmentation
 from mantis_shrimp import utils
 from mantis_shrimp import pipeline
 
-# Import CalPit if available
+# Import CalPit from local package
 try:
-    from calpit import CalPit
-    from calpit.nn.umnn import MonotonicNN
-    from calpit.utils import normalize
-    # Try to import a module that might be missing
+    from mantis_shrimp.calpit import CalPit
+    from mantis_shrimp.calpit.nn.umnn import MonotonicNN
+    from mantis_shrimp.calpit.utils import normalize
     CALPIT_AVAILABLE = True
 except ImportError:
     # If any import fails, mark CalPit as unavailable

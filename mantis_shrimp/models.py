@@ -12,8 +12,8 @@ from torch import Tensor
 
 # Try to import CalPit, but make it optional
 try:
-    from calpit import CalPit
-    from calpit.nn.umnn import MonotonicNN
+    from mantis_shrimp.calpit import CalPit
+    from mantis_shrimp.calpit.nn.umnn import MonotonicNN
     CALPIT_AVAILABLE = True
 except ImportError:
     CALPIT_AVAILABLE = False
