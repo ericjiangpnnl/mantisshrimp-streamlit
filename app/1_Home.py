@@ -35,30 +35,14 @@ from mantis_shrimp import utils
 from mantis_shrimp import pipeline
 
 # Import CalPit from local package with detailed diagnostics
-import_status = {}
-CALPIT_AVAILABLE = True
+from app.utils.calpit_diagnostics import test_calpit_imports
+import_status, CALPIT_AVAILABLE = test_calpit_imports()
 
-# Test each import individually for debugging
-try:
+# Import CalPit components if available
+if CALPIT_AVAILABLE:
     from mantis_shrimp.calpit import CalPit
-    import_status['CalPit'] = "✅ Success"
-except ImportError as e:
-    import_status['CalPit'] = f"❌ Failed: {str(e)}"
-    CALPIT_AVAILABLE = False
-
-try:
     from mantis_shrimp.calpit.nn.umnn import MonotonicNN
-    import_status['MonotonicNN'] = "✅ Success"
-except ImportError as e:
-    import_status['MonotonicNN'] = f"❌ Failed: {str(e)}"
-    CALPIT_AVAILABLE = False
-
-try:
     from mantis_shrimp.calpit.utils import normalize
-    import_status['normalize'] = "✅ Success"
-except ImportError as e:
-    import_status['normalize'] = f"❌ Failed: {str(e)}"
-    CALPIT_AVAILABLE = False
 
 # If CalPit is not available, define a simple normalize function as a fallback
 if not CALPIT_AVAILABLE:
@@ -167,41 +151,10 @@ with st.expander("Limitations"):
     That being said, many pointing do not have any discernable flux in the Galex:UV bands. That is normal and reflective of our training set. Its a good rule of thumb to make sure that the galaxy is visible in the optical bands atleast.
     """)
 
-# System Diagnostics accordion
-with st.expander("🔧 System Diagnostics (Debug Info)"):
-    st.markdown("**CalPit Import Status:**")
-    for component, status in import_status.items():
-        st.write(f"• **{component}**: {status}")
-    
-    st.markdown("---")
-    st.markdown("**System Information:**")
-    st.write(f"• **Python Version**: {sys.version}")
-    st.write(f"• **Current Working Directory**: {os.getcwd()}")
-    st.write(f"• **Python Path**: {sys.path[:3]}...")  # Show first 3 paths
-    
-    # Check if CalPit directory exists
-    calpit_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'mantis_shrimp', 'calpit')
-    calpit_exists = os.path.exists(calpit_dir)
-    st.write(f"• **CalPit Directory Exists**: {'✅ Yes' if calpit_exists else '❌ No'} ({calpit_dir})")
-    
-    if calpit_exists:
-        # List contents of calpit directory
-        try:
-            calpit_contents = os.listdir(calpit_dir)
-            st.write(f"• **CalPit Directory Contents**: {calpit_contents}")
-        except Exception as e:
-            st.write(f"• **CalPit Directory Contents**: ❌ Error reading: {e}")
-    
-    # Check for __init__.py files
-    init_files = []
-    for subdir in ['', 'nn', 'nn/umnn']:
-        init_path = os.path.join(calpit_dir, subdir, '__init__.py')
-        init_exists = os.path.exists(init_path)
-        init_files.append(f"{subdir or 'root'}/__init__.py: {'✅' if init_exists else '❌'}")
-    st.write(f"• **__init__.py Files**: {', '.join(init_files)}")
-    
-    st.markdown("---")
-    st.write(f"**Overall CalPit Status**: {'✅ Available' if CALPIT_AVAILABLE else '❌ Not Available'}")
+# CalPit Diagnostics - COMMENTED OUT (prettytable dependency fixed)
+# Uncomment the lines below if you need to debug CalPit import issues in the future
+# from app.utils.calpit_diagnostics import show_calpit_diagnostics
+# show_calpit_diagnostics(import_status, CALPIT_AVAILABLE)
 
 # Process form submission
 if submit_button and ra and dec:
