@@ -30,7 +30,6 @@ This Streamlit application provides an interactive web interface for the Mantis 
 
 ```bash
 git clone https://github.com/ericjiangpnnl/mantisshrimp-streamlit.git
-cd MantisShrimp-Streamlit
 ```
 
 2. **Install additional dependencies:**
