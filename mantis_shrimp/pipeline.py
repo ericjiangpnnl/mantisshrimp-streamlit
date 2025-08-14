@@ -215,7 +215,7 @@ def get_feature_vector(data: tuple):
     
     current_dir = os.path.dirname(os.path.abspath(__file__))
     mean_path = os.path.join(current_dir, "MODELS_final","calpit_stats","calpit_mean.npy")
-    std_path = os.path.join(current_dir, "MODELS_final","calpit_stats","calpit_mean.npy")
+    std_path = os.path.join(current_dir, "MODELS_final","calpit_stats","calpit_std.npy")
     calpit_mean = np.load(mean_path)
     calpit_std = np.load(std_path)
 
@@ -391,5 +391,3 @@ def visualization(point_z, PDF, x, name, ra, dec, CLASS_BINS_npy):
     plt.legend()
 
     return fig
-
-

@@ -1,6 +1,6 @@
 # Try to import sep_pjw, but make it optional
 try:
-    import sep_pjw as sep
+    import sep
     SEP_AVAILABLE = True
 except ImportError:
     SEP_AVAILABLE = False

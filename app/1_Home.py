@@ -17,6 +17,10 @@ from werkzeug.utils import secure_filename
 from app.config import SAVEPATH, DEVICE, DUSTMAPS_DIR
 from app.utils.download import get_download_link_for_json, get_download_link_for_fits
 from app.utils.visualization import is_number_with_decimal
+from app.utils.downloads import ensure_all_required_files
+
+# Ensure all required files are downloaded before proceeding
+ensure_all_required_files()
 
 # Configure dustmaps
 from dustmaps.config import config
@@ -30,18 +34,18 @@ from mantis_shrimp import augmentation
 from mantis_shrimp import utils
 from mantis_shrimp import pipeline
 
-# Import CalPit if available
-try:
-    from calpit import CalPit
-    from calpit.nn.umnn import MonotonicNN
-    from calpit.utils import normalize
-    # Try to import a module that might be missing
-    import splinebasis
-    CALPIT_AVAILABLE = True
-except ImportError:
-    # If any import fails, mark CalPit as unavailable
-    CALPIT_AVAILABLE = False
-    # Define a simple normalize function as a fallback
+# Import CalPit from local package with detailed diagnostics
+from app.utils.calpit_diagnostics import test_calpit_imports
+import_status, CALPIT_AVAILABLE = test_calpit_imports()
+
+# Import CalPit components if available
+if CALPIT_AVAILABLE:
+    from mantis_shrimp.calpit import CalPit
+    from mantis_shrimp.calpit.nn.umnn import MonotonicNN
+    from mantis_shrimp.calpit.utils import normalize
+
+# If CalPit is not available, define a simple normalize function as a fallback
+if not CALPIT_AVAILABLE:
     def normalize(data, grid):
         """Simple normalization fallback when CalPit is not available"""
         normalized_data = data / np.sum(data, axis=-1, keepdims=True)
@@ -147,6 +151,11 @@ with st.expander("Limitations"):
     That being said, many pointing do not have any discernable flux in the Galex:UV bands. That is normal and reflective of our training set. Its a good rule of thumb to make sure that the galaxy is visible in the optical bands atleast.
     """)
 
+# CalPit Diagnostics - COMMENTED OUT (prettytable dependency fixed)
+# Uncomment the lines below if you need to debug CalPit import issues in the future
+# from app.utils.calpit_diagnostics import show_calpit_diagnostics
+# show_calpit_diagnostics(import_status, CALPIT_AVAILABLE)
+
 # Process form submission
 if submit_button and ra and dec:
     try:
@@ -193,7 +202,11 @@ if submit_button and ra and dec:
             
             normalized_feature_vector = pipeline.get_feature_vector(data)
             
-            ckpt = torch.load('./mantis_shrimp/MODELS_final/calpit_checkpoint.pt', map_location=torch.device(DEVICE), weights_only=True)
+            # Use relative path approach consistent with other model loading
+            import os
+            current_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))  # Go up one level from app/
+            calpit_path = os.path.join(current_dir, 'mantis_shrimp', 'MODELS_final', 'calpit_checkpoint.pt')
+            ckpt = torch.load(calpit_path, map_location=torch.device(DEVICE), weights_only=True)
             calpit_model.model.load_state_dict(ckpt)
             calpit_model.model.train(False)
             
